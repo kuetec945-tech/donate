@@ -1,0 +1,761 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peer-to-Peer Blood Donation Dashboards</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            blood: {
+              50: '#fef2f2',
+              100: '#ffe1e1',
+              500: '#ef4444',
+              600: '#dc2626',
+              700: '#b91c1c',
+              800: '#991b1b',
+              900: '#7f1d1d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Smooth transitions for interactive state toggles */
+    .view-tab.active {
+      background-color: #dc2626;
+      color: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.25);
+    }
+    
+    /* Toggle Switch Styling */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #10b981;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #10b981;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- ==================== TOP PREVIEW SWITCHER BAR ==================== -->
+  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <span class="p-1.5 bg-blood-600 text-white rounded-lg text-xs font-bold uppercase tracking-wider">UI Prototype</span>
+        <h1 class="text-sm font-semibold text-slate-200">BloodSync Portal Layout Preview</h1>
+      </div>
+      
+      <!-- Interactive View Switcher Buttons -->
+      <div class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700">
+        <button id="btn-donor" onclick="switchDashboard('donor')" class="view-tab active px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center space-x-2">
+          <i class="fa-solid fa-hand-holding-heart"></i>
+          <span>Donor Dashboard</span>
+        </button>
+        <button id="btn-seeker" onclick="switchDashboard('seeker')" class="view-tab text-slate-400 hover:text-white px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 flex items-center space-x-2">
+          <i class="fa-solid fa-notes-medical"></i>
+          <span>Seeker Dashboard</span>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-400 hidden lg:block">
+        Simulated PHP Backend Views (<span id="active-filename" class="font-mono text-blood-400">donor_home.php</span>)
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ================================================================ -->
+    <!-- 1. DONOR DASHBOARD VIEW (donor_home.php)                        -->
+    <!-- ================================================================ -->
+    <div id="donor-dashboard-view" class="space-y-6">
+
+      <!-- Navigation Header for Donor -->
+      <nav class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Brand / Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-blood-600 text-white flex items-center justify-center text-xl font-black shadow-md shadow-blood-200">
+            <i class="fa-solid fa-droplet"></i>
+          </div>
+          <div>
+            <span class="text-lg font-bold text-slate-900 tracking-tight">BloodSync</span>
+            <span class="text-xs text-slate-500 block font-medium">Donor Portal</span>
+          </div>
+        </div>
+
+        <!-- Right Side Nav Actions -->
+        <div class="flex items-center space-x-4">
+          <!-- Availability Toggle -->
+          <div class="flex items-center bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold mr-2 text-slate-600" id="donor-status-text">Available</span>
+            <button id="availability-toggle-btn" onclick="toggleAvailability()" class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-emerald-500 transition-colors duration-200 ease-in-out focus:outline-none">
+              <span id="toggle-circle" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"></span>
+            </button>
+          </div>
+
+          <!-- Notification Icon -->
+          <button class="relative p-2 text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition" onclick="showToast('You have 2 new local blood requests nearby!')">
+            <i class="fa-regular fa-bell text-lg"></i>
+            <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-blood-600 rounded-full border-2 border-white"></span>
+          </button>
+
+          <!-- User Profile Dropdown Simulator -->
+          <div class="flex items-center space-x-3 pl-2 border-l border-slate-200">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120" alt="Donor Profile" class="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-200">
+            <div class="hidden md:block text-left">
+              <div class="text-xs font-bold text-slate-800">Sarah Jenkins</div>
+              <div class="text-[11px] text-slate-500">ID: DON-8821</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Donor Status Hero Card -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blood-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <!-- Subtle decorative background SVG -->
+        <div class="absolute -right-10 -bottom-10 opacity-10 text-white pointer-events-none">
+          <i class="fa-solid fa-heart-pulse text-9xl"></i>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center relative z-10">
+          
+          <!-- Left: Blood Type & Eligibility Status -->
+          <div class="md:col-span-2 space-y-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Blood Type Badge -->
+              <span class="inline-flex items-center px-4 py-1.5 rounded-2xl text-lg font-black bg-blood-600 text-white shadow-lg shadow-blood-900/50">
+                <i class="fa-solid fa-droplet mr-2 text-sm"></i> Blood Type: O+
+              </span>
+
+              <!-- Eligibility Status Badge -->
+              <span class="inline-flex items-center px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 animate-pulse"></span> Eligible to Donate Now
+              </span>
+            </div>
+
+            <div>
+              <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready to save a life today?</h2>
+              <p class="text-slate-300 text-sm mt-1 max-w-xl">
+                Your blood group <strong class="text-white">O+</strong> is currently in high demand in your regional zone. You are eligible to donate immediately based on your last donation date (Nov 12, 2025).
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Key Impact Counters -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 grid grid-cols-3 gap-2 text-center">
+            <div>
+              <div class="text-2xl sm:text-3xl font-black text-white">6</div>
+              <div class="text-[11px] font-medium text-slate-300 uppercase tracking-wider mt-1">Donations</div>
+            </div>
+            <div class="border-x border-white/10">
+              <div class="text-2xl sm:text-3xl font-black text-emerald-400">18</div>
+              <div class="text-[11px] font-medium text-slate-300 uppercase tracking-wider mt-1">Lives Saved</div>
+            </div>
+            <div>
+              <div class="text-2xl sm:text-3xl font-black text-blood-300">5</div>
+              <div class="text-[11px] font-medium text-slate-300 uppercase tracking-wider mt-1">Months Ago</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Main Section Grid: Emergency Requests & Health Tips -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Emergency Requests Near You (2 Columns) -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-truck-medical text-blood-600"></i> Emergency Requests Near You
+              <span class="bg-blood-100 text-blood-700 text-xs font-bold px-2.5 py-0.5 rounded-full">2 Nearby</span>
+            </h3>
+            <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-location-dot mr-1 text-blood-500"></i> Central City Radius (10 km)</span>
+          </div>
+
+          <!-- Request Cards Container -->
+          <div class="space-y-4">
+
+            <!-- Request Card 1 (CRITICAL) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden">
+              <div class="absolute top-0 left-0 bottom-0 w-1.5 bg-blood-600"></div>
+              
+              <div class="flex flex-col sm:flex-row justify-between gap-4">
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="bg-blood-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md tracking-wider animate-pulse">
+                      CRITICAL URGENCY
+                    </span>
+                    <span class="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-md">
+                      Needs: O+ / O-
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium">Posted 20 mins ago</span>
+                  </div>
+
+                  <h4 class="text-base font-bold text-slate-900">City General Hospital — Trauma Unit</h4>
+                  
+                  <div class="flex flex-wrap gap-y-1 gap-x-4 text-xs text-slate-600">
+                    <p><i class="fa-solid fa-map-pin text-slate-400 mr-1"></i> 2.4 km away (12 mins drive)</p>
+                    <p><i class="fa-solid fa-vial text-slate-400 mr-1"></i> Required: 3 Units</p>
+                    <p><i class="fa-solid fa-user text-slate-400 mr-1"></i> Patient: Emergency Surgery</p>
+                  </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex sm:flex-col justify-between items-end gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                  <span class="text-xs font-bold text-blood-600 sm:hidden">Within 2 Hours</span>
+                  <button onclick="respondToRequest('City General Hospital')" class="w-full sm:w-auto px-5 py-2.5 bg-blood-600 hover:bg-blood-700 text-white text-xs font-bold rounded-xl shadow-md shadow-blood-200 transition active:scale-95 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-hand-holding-medical"></i>
+                    <span>Respond Now</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Request Card 2 (HIGH) -->
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-200 relative overflow-hidden">
+              <div class="absolute top-0 left-0 bottom-0 w-1.5 bg-amber-500"></div>
+
+              <div class="flex flex-col sm:flex-row justify-between gap-4">
+                <div class="space-y-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md tracking-wider">
+                      HIGH PRIORITY
+                    </span>
+                    <span class="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded-md">
+                      Needs: O+
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium">Posted 1 hour ago</span>
+                  </div>
+
+                  <h4 class="text-base font-bold text-slate-900">St. Jude Medical Center</h4>
+
+                  <div class="flex flex-wrap gap-y-1 gap-x-4 text-xs text-slate-600">
+                    <p><i class="fa-solid fa-map-pin text-slate-400 mr-1"></i> 5.8 km away</p>
+                    <p><i class="fa-solid fa-vial text-slate-400 mr-1"></i> Required: 1 Unit</p>
+                    <p><i class="fa-solid fa-clock text-slate-400 mr-1"></i> Needed by: Today, 6:00 PM</p>
+                  </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex sm:flex-col justify-between items-end gap-2 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100">
+                  <button onclick="respondToRequest('St. Jude Medical Center')" class="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition active:scale-95 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-hand-holding-medical"></i>
+                    <span>Respond</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Health Reminders & Quick Donor Tips -->
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-notes-medical text-slate-700"></i> Donor Guidelines
+          </h3>
+
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex items-start space-x-3">
+              <div class="p-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold">
+                <i class="fa-solid fa-glass-water"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800">Hydrate Well</h5>
+                <p class="text-xs text-slate-500 mt-0.5">Drink at least 500ml of water or fluids before heading to the donation site.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3 border-t border-slate-100 pt-3">
+              <div class="p-2 bg-amber-50 text-amber-600 rounded-xl text-sm font-bold">
+                <i class="fa-solid fa-utensils"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800">Eat Iron-Rich Meals</h5>
+                <p class="text-xs text-slate-500 mt-0.5">Consume a healthy meal prior to donation. Avoid fatty foods right before donating.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3 border-t border-slate-100 pt-3">
+              <div class="p-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold">
+                <i class="fa-solid fa-id-card"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800">Bring Valid Identification</h5>
+                <p class="text-xs text-slate-500 mt-0.5">Always bring a photo ID and your blood donor registration card.</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100 mt-2">
+              <span class="text-[11px] text-slate-500 font-medium">Need to reschedule availability?</span>
+              <button onclick="toggleAvailability()" class="block w-full mt-1 text-xs text-blood-600 font-bold hover:underline">
+                Update Status Settings
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================================================================ -->
+    <!-- 2. SEEKER DASHBOARD VIEW (seeker_home.php)                      -->
+    <!-- ================================================================ -->
+    <div id="seeker-dashboard-view" class="space-y-6 hidden">
+
+      <!-- Navigation Header for Seeker -->
+      <nav class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Brand / Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-900 text-blood-500 flex items-center justify-center text-xl font-black shadow-md">
+            <i class="fa-solid fa-square-plus"></i>
+          </div>
+          <div>
+            <span class="text-lg font-bold text-slate-900 tracking-tight">BloodSync</span>
+            <span class="text-xs text-slate-500 block font-medium">Seeker / Patient Portal</span>
+          </div>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="flex items-center space-x-4">
+          <!-- Active Requests Counter Badge -->
+          <div class="flex items-center bg-blood-50 text-blood-700 px-3 py-1.5 rounded-xl border border-blood-100 text-xs font-bold">
+            <i class="fa-solid fa-list-check mr-2"></i> 1 Active Request
+          </div>
+
+          <!-- Notification Bell -->
+          <button class="relative p-2 text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition" onclick="showToast('Donor Mark R. accepted your blood request!')">
+            <i class="fa-regular fa-bell text-lg"></i>
+            <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-blood-600 rounded-full border-2 border-white"></span>
+          </button>
+
+          <!-- User Profile -->
+          <div class="flex items-center space-x-3 pl-2 border-l border-slate-200">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120" alt="Seeker Profile" class="w-9 h-9 rounded-xl object-cover ring-2 ring-slate-200">
+            <div class="hidden md:block text-left">
+              <div class="text-xs font-bold text-slate-800">David Miller</div>
+              <div class="text-[11px] text-slate-500">ID: SEK-4029</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Seeker Hero Banner -->
+      <div class="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-slate-800">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+          <div class="space-y-2 max-w-xl text-center md:text-left">
+            <span class="text-xs font-bold text-blood-400 uppercase tracking-widest bg-blood-950/80 px-3 py-1 rounded-full border border-blood-800/50">
+              Urgent Blood Assistance
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Need blood for a patient or relative?</h2>
+            <p class="text-slate-300 text-sm">
+              Broadcast an immediate request to nearby verified donors in real-time or search available donors manually.
+            </p>
+          </div>
+
+          <!-- Primary Call to Action Button -->
+          <button onclick="openModal()" class="w-full md:w-auto px-6 py-4 bg-blood-600 hover:bg-blood-700 text-white font-bold rounded-2xl shadow-lg shadow-blood-900/40 transition hover:scale-105 active:scale-95 flex items-center justify-center space-x-3 text-sm">
+            <i class="fa-solid fa-plus-circle text-lg"></i>
+            <span>Create Emergency Blood Request</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- My Active Requests Section -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-blood-600"></i> My Active Blood Requests
+          </h3>
+        </div>
+
+        <!-- Active Request Card -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm relative">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            
+            <div class="flex items-start space-x-4">
+              <div class="w-12 h-12 rounded-2xl bg-blood-100 text-blood-700 flex items-center justify-center text-xl font-black flex-shrink-0">
+                A+
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-bold text-slate-900">Request #REQ-9902</span>
+                  <span class="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    2 Donors Matched
+                  </span>
+                </div>
+                <div class="text-xs text-slate-500">
+                  Hospital: <strong class="text-slate-700">Metro Care Hospital, Ward 4B</strong> &bull; Required: 2 Units
+                </div>
+                <div class="text-[11px] text-slate-400">
+                  Created: Today at 2:15 PM &bull; Patient: Robert Miller
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons for Request Management -->
+            <div class="flex items-center space-x-3 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100 justify-end">
+              <button onclick="showToast('Showing matched donors below!')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center space-x-2">
+                <i class="fa-solid fa-users"></i>
+                <span>View Matched Donors</span>
+              </button>
+              <button onclick="showToast('Request cancelled.')" class="px-3 py-2 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 text-xs font-bold rounded-xl transition">
+                Cancel
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Donors Nearby (Grid) -->
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-user-check text-emerald-600"></i> Available Donors Nearby
+            </h3>
+            <p class="text-xs text-slate-500">Directly connect with compatible donors in your immediate location</p>
+          </div>
+
+          <!-- Quick Filters -->
+          <div class="flex items-center space-x-2">
+            <select class="bg-white border border-slate-200 text-xs rounded-xl px-3 py-2 font-medium text-slate-700 focus:outline-none">
+              <option>All Blood Groups</option>
+              <option selected>Compatible with A+</option>
+              <option>O Negative (Universal)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Donor Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+          <!-- Donor Card 1 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120" alt="Donor" class="w-11 h-11 rounded-xl object-cover">
+                  <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1">
+                    Mark R.
+                    <i class="fa-solid fa-circle-check text-blue-500 text-xs" title="Verified Donor"></i>
+                  </h4>
+                  <span class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot text-blood-500 mr-1"></i> 1.8 km away</span>
+                </div>
+              </div>
+
+              <!-- Blood Type Badge -->
+              <span class="bg-blood-600 text-white font-black text-xs px-2.5 py-1 rounded-xl shadow-sm">
+                A+
+              </span>
+            </div>
+
+            <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Total Donations:</span>
+                <span class="font-bold text-slate-800">12 times</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Response Rate:</span>
+                <span class="font-bold text-emerald-600">100% Quick Responder</span>
+              </div>
+            </div>
+
+            <button onclick="contactDonor('Mark R.')" class="w-full py-2.5 bg-blood-600 hover:bg-blood-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Contact Donor</span>
+            </button>
+          </div>
+
+          <!-- Donor Card 2 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120" alt="Donor" class="w-11 h-11 rounded-xl object-cover">
+                  <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1">
+                    Elena K.
+                    <i class="fa-solid fa-circle-check text-blue-500 text-xs" title="Verified Donor"></i>
+                  </h4>
+                  <span class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot text-blood-500 mr-1"></i> 3.2 km away</span>
+                </div>
+              </div>
+
+              <!-- Blood Type Badge -->
+              <span class="bg-slate-900 text-white font-black text-xs px-2.5 py-1 rounded-xl shadow-sm">
+                O-
+              </span>
+            </div>
+
+            <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Total Donations:</span>
+                <span class="font-bold text-slate-800">5 times</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Response Rate:</span>
+                <span class="font-bold text-emerald-600">High</span>
+              </div>
+            </div>
+
+            <button onclick="contactDonor('Elena K.')" class="w-full py-2.5 bg-blood-600 hover:bg-blood-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Contact Donor</span>
+            </button>
+          </div>
+
+          <!-- Donor Card 3 -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition space-y-4">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="relative">
+                  <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=120" alt="Donor" class="w-11 h-11 rounded-xl object-cover">
+                  <span class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+                </div>
+                <div>
+                  <h4 class="text-sm font-bold text-slate-900 flex items-center gap-1">
+                    David H.
+                    <i class="fa-solid fa-circle-check text-blue-500 text-xs" title="Verified Donor"></i>
+                  </h4>
+                  <span class="text-[11px] text-slate-500"><i class="fa-solid fa-location-dot text-blood-500 mr-1"></i> 4.5 km away</span>
+                </div>
+              </div>
+
+              <!-- Blood Type Badge -->
+              <span class="bg-blood-600 text-white font-black text-xs px-2.5 py-1 rounded-xl shadow-sm">
+                A+
+              </span>
+            </div>
+
+            <div class="text-xs text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Total Donations:</span>
+                <span class="font-bold text-slate-800">8 times</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Response Rate:</span>
+                <span class="font-bold text-slate-700">Moderate</span>
+              </div>
+            </div>
+
+            <button onclick="contactDonor('David H.')" class="w-full py-2.5 bg-blood-600 hover:bg-blood-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Contact Donor</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- ==================== CREATE REQUEST MODAL (FOR SEEKER) ==================== -->
+  <div id="create-request-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-5 animate-in fade-in zoom-in duration-150">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-hand-holding-medical text-blood-600"></i> New Blood Request
+        </h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Required Blood Group</label>
+          <select required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blood-500">
+            <option value="">Select Blood Group</option>
+            <option>A+</option>
+            <option>A-</option>
+            <option>B+</option>
+            <option>B-</option>
+            <option>O+</option>
+            <option>O-</option>
+            <option>AB+</option>
+            <option>AB-</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Units Needed</label>
+            <input type="number" min="1" max="10" value="1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blood-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Urgency Level</label>
+            <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blood-500">
+              <option value="CRITICAL">Critical (Immediate)</option>
+              <option value="HIGH">High (Within 24h)</option>
+              <option value="MEDIUM">Medium (Scheduled)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Hospital / Medical Center Name</label>
+          <input type="text" placeholder="e.g. St. Mary Memorial Hospital" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blood-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Contact Phone Number</label>
+          <input type="tel" placeholder="+1 (555) 000-0000" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blood-500">
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl hover:bg-slate-200">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-blood-600 text-white text-xs font-bold rounded-xl hover:bg-blood-700 shadow-md shadow-blood-200">
+            Publish Emergency Request
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none space-y-2"></div>
+
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // State Tracker
+    let currentDonorStatus = true; // true = Available
+
+    // Switch between Donor and Seeker Views
+    function switchDashboard(role) {
+      const donorView = document.getElementById('donor-dashboard-view');
+      const seekerView = document.getElementById('seeker-dashboard-view');
+      const btnDonor = document.getElementById('btn-donor');
+      const btnSeeker = document.getElementById('btn-seeker');
+      const filenameLabel = document.getElementById('active-filename');
+
+      if (role === 'donor') {
+        donorView.classList.remove('hidden');
+        seekerView.classList.add('hidden');
+        btnDonor.classList.add('active');
+        btnDonor.classList.remove('text-slate-400');
+        btnSeeker.classList.remove('active');
+        btnSeeker.classList.add('text-slate-400');
+        filenameLabel.textContent = 'donor_home.php';
+      } else {
+        seekerView.classList.remove('hidden');
+        donorView.classList.add('hidden');
+        btnSeeker.classList.add('active');
+        btnSeeker.classList.remove('text-slate-400');
+        btnDonor.classList.remove('active');
+        btnDonor.classList.add('text-slate-400');
+        filenameLabel.textContent = 'seeker_home.php';
+      }
+    }
+
+    // Toggle Donor Availability State
+    function toggleAvailability() {
+      currentDonorStatus = !currentDonorStatus;
+      const circle = document.getElementById('toggle-circle');
+      const btn = document.getElementById('availability-toggle-btn');
+      const statusText = document.getElementById('donor-status-text');
+
+      if (currentDonorStatus) {
+        circle.classList.add('translate-x-5');
+        circle.classList.remove('translate-x-0');
+        btn.classList.add('bg-emerald-500');
+        btn.classList.remove('bg-slate-300');
+        statusText.textContent = 'Available';
+        statusText.className = 'text-xs font-semibold mr-2 text-slate-600';
+        showToast('Your status is set to: Available for Requests');
+      } else {
+        circle.classList.remove('translate-x-5');
+        circle.classList.add('translate-x-0');
+        btn.classList.remove('bg-emerald-500');
+        btn.classList.add('bg-slate-300');
+        statusText.textContent = 'Unavailable';
+        statusText.className = 'text-xs font-semibold mr-2 text-slate-400';
+        showToast('Your status is set to: Unavailable');
+      }
+    }
+
+    // Respond Button Handler
+    function respondToRequest(hospitalName) {
+      showToast(`Response sent to ${hospitalName}! Contact details unlocked.`);
+    }
+
+    // Contact Donor Handler
+    function contactDonor(donorName) {
+      showToast(`Direct message sent to ${donorName}. Check your notifications.`);
+    }
+
+    // Modal Control Logic
+    function openModal() {
+      document.getElementById('create-request-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('create-request-modal').classList.add('hidden');
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      closeModal();
+      showToast('New Emergency Request created successfully!');
+    }
+
+    // Toast Alert Helper
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'bg-slate-900 text-white text-xs font-medium px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-3 pointer-events-auto transition-all transform translate-y-2 border border-slate-700';
+      toast.innerHTML = `
+        <i class="fa-solid fa-circle-info text-blood-500 text-sm"></i>
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

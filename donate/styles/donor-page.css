@@ -1,0 +1,106 @@
+* {
+    padding: 0;
+    margin: 0;
+
+}
+
+.dashboard {
+    background-color: white;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 4px 4px 4px rgb(100, 96, 96);
+    justify-content: left;
+    padding: 15px;
+    flex-direction: row;
+    height: 150vh;
+    width: 250px;
+
+    margin-top: 0px;
+}
+
+img {
+    width: 80px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.dashelement {
+    flex-direction: row;
+    display: block;
+    padding: 20px;
+    text-decoration: none;
+    color: black;
+
+}
+
+/****** dashboard links *********/
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.overview {
+    margin-bottom: 2000px;
+    background-color: aqua;
+    padding: 20px;
+    height: 200px;
+
+}
+
+.donations {
+    padding: 20px;
+}
+
+.profile {
+    margin: 20px;
+}
+
+.setting {
+    margin: 20px;
+}
+
+/*****end*************/
+
+h1 {
+    flex-direction: row;
+    color: red;
+}
+
+section {
+    align-self: center;
+    margin-left: 500px;
+    margin-top: -1150px;
+    background-color: white;
+}
+
+.user {
+    padding: 25px;
+    margin-left: -100px;
+    margin-bottom: 40px;
+    content: "\1F50D";
+}
+
+section a {
+    padding: 30px;
+    box-shadow: 4px 4px 4px 1px rgb(77, 74, 74);
+    border-radius: 20px;
+    border-color: grey;
+}
+
+.status {
+    margin-left: -200px;
+    margin-right: 90px;
+}
+
+.available {
+    margin-right: 90px;
+}
+
+.history {
+    margin-right: 90px;
+}
+
+.info {
+    margin-right: 90px;
+
+}

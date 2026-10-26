@@ -1,0 +1,81 @@
+/* Additional Layout & Form Utilities */
+.form-card {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.vertical-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.vertical-form .form-group input,
+.vertical-form .form-group select,
+.vertical-form .form-group textarea {
+  padding: 0.65rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Profile Specifics */
+.profile-sidebar {
+  text-align: center;
+}
+
+.avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #b71c1c;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
+
+.role-badge {
+  background: #e0e0e0;
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+}
+
+.profile-meta {
+  text-align: left;
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
+}

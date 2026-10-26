@@ -1,0 +1,103 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: none;
+}
+
+h1 {
+    text-align: center;
+}
+
+span {
+    color: rgb(235, 11, 11);
+}
+
+form {
+    padding: 20px;
+    width: fit-content;
+    background: linear-gradient(rgb(248, 247, 247), rgb(228, 25, 25));
+    margin-top: 50px;
+    border-radius: 20px;
+
+    box-shadow: 4px 4px 10px rgba(235, 79, 79, 0.1);
+
+}
+
+.form-title {
+
+    text-align: center;
+    font-size: xx-large;
+    color: rgb(189, 17, 17);
+    font-family: sans-serif;
+    align-self: center;
+
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    align-content: center;
+    margin-top: 20px;
+    margin-left: 20px;
+    justify-self: center;
+    margin: 20px;
+
+}
+
+label {
+    font-weight: bold;
+    font-family: sans-serif;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    border: 1px solid grey;
+    border: none;
+}
+
+button {
+    color: rgb(233, 8, 8);
+    text-align: center;
+    padding: 15px;
+    border-radius: 15px;
+    background-color: rgb(241, 239, 239);
+    max-width: fit-content;
+    border: none;
+    justify-self: center;
+    margin-left: 120px;
+    font-size: large;
+    font-weight: bold;
+
+}
+
+button::hover {
+    pointer-events: all;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+
+}
+
+div a {
+    color: rgb(41, 177, 231);
+    font-weight: bold;
+}
+
+select {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    border: 1px solid grey;
+}
